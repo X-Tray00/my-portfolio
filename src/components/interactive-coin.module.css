@@ -1,0 +1,112 @@
+:root {
+  --diam: 260px;
+  --thickness: 22px;
+  --facetOverlap: 2px;
+  --slices: 96;
+  --edge-color-1: rgba(230, 230, 230, 0.856);
+  --edge-color-2: rgba(184, 184, 184, 0.76);
+}
+
+.purse {
+  position: relative;
+  width: var(--diam);
+  height: var(--diam);
+  perspective: 1200px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  margin-inline: auto;
+}
+
+.coin {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform;
+  cursor: grab;
+  touch-action: pan-y;
+}
+.coin:active {
+  cursor: grabbing;
+}
+
+/* faces */
+.face {
+  position: absolute;
+  width: var(--diam);
+  height: var(--diam);
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.front {
+  transform: translateZ(calc(var(--thickness) / 2 + 0.2px));
+}
+.back {
+  transform: translateZ(calc(var(--thickness) / -2 - 0.2px)) rotateY(180deg);
+}
+
+/* EDGE RING lives on the rim (like the CodePen: translateX(diam*0.45)) */
+.edge {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateX(calc(var(--diam) * 0.5 - var(--thickness) / 2));
+  pointer-events: none;
+}
+
+/* each vertical spoke; its pseudo elements are the two facets */
+.slice {
+  position: absolute;
+  height: var(--diam);
+  width: var(--thickness);
+  left: 0; /* parent already moved to rim */
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+
+.slice::before,
+.slice::after {
+  content: '';
+  position: absolute;
+  width: var(--thickness);
+  height: calc(var(--facetLen) + var(--facetOverlap));
+  background: linear-gradient(
+    to bottom,
+    var(--edge-color-1) 0%,
+    var(--edge-color-1) 72%,
+    var(--edge-color-2) 73%,
+    var(--edge-color-2) 100%
+  );
+  transform: rotateX(calc((180deg - (360deg / var(--slices))) / 2));
+  backface-visibility: visible;
+}
+.slice::before {
+  transform-origin: top center;
+  top: 0;
+}
+.slice::after {
+  transform-origin: bottom center;
+  bottom: 0;
+}
+
+/* soft glow */
+.glow {
+  position: absolute;
+  inset: -18px;
+  border-radius: 999px;
+  background: radial-gradient(
+    closest-side,
+    rgba(120, 120, 255, 0.18),
+    transparent 70%
+  );
+  filter: blur(16px);
+  pointer-events: none;
+}

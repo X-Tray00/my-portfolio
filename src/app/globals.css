@@ -1,26 +1,101 @@
-@import "tailwindcss";
+/* TOP OF FILE — v4 syntax */
+@import 'tailwindcss';
 
+/* Mobile landscape only (phones rotated sideways, not desktop) */
+@custom-variant mobile-landscape (@media (orientation: landscape) and (max-height: 500px));
+
+/* now it's safe to use @apply */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html {
+  scroll-behavior: smooth;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Protocol coin ─────────────────────────────────────────────────────────── */
+@keyframes protocol-coin-spin {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(360deg); }
+}
+
+/* ── Markdown / audit findings ─────────────────────────────────────────────── */
+.prose-audit { color: #94a3b8; font-size: 0.9rem; line-height: 1.75; }
+.prose-audit h2 { color: #f1f5f9; font-size: 1.05rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+.prose-audit h3 { color: #e2e8f0; font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.4rem; }
+.prose-audit p  { margin: 0.6rem 0; }
+.prose-audit ul, .prose-audit ol { padding-left: 1.4rem; margin: 0.6rem 0; }
+.prose-audit li { margin: 0.25rem 0; }
+.prose-audit strong { color: #e2e8f0; font-weight: 600; }
+.prose-audit a  { color: #818cf8; text-decoration: underline; }
+.prose-audit a:hover { color: #a5b4fc; }
+.prose-audit code:not(pre code) {
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.82em;
+  color: #a5b4fc;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+.prose-audit pre {
+  background: #0d1117;
+  border: 1px solid rgba(148,163,184,0.12);
+  border-radius: 10px;
+  padding: clamp(0.6rem, 3vw, 1rem) clamp(0.75rem, 4vw, 1.25rem);
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.prose-audit pre code {
+  color: #a5b4fc;
+  font-size: 0.82rem;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #020617;
+  color: #f1f5f9;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image:
+    radial-gradient(
+      ellipse at 20% 10%,
+      rgba(99, 102, 241, 0.1),
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 80% 30%,
+      rgba(56, 189, 248, 0.08),
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 50% 80%,
+      rgba(16, 185, 129, 0.08),
+      transparent 35%
+    );
+  background-attachment: fixed;
 }
