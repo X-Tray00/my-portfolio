@@ -34,7 +34,8 @@ export default function ProfileCoin({
   // Rotation physics
   const ryRef = useRef(0);
   const targetRy = useRef(0);
-  const idleAtRef = useRef(Date.now() + 1500);
+  // Initialized lazily in effects that use it to avoid calling Date.now() during render
+  const idleAtRef = useRef(0);
 
   // Drag state
   const dragging = useRef(false);

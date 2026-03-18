@@ -11,8 +11,8 @@ const links = [
   { name: 'Contact',     href: '/#contact'    },
 ];
 
-const MENU_W = 200;
-const MENU_H = 210;
+const MENU_W = 240;
+const MENU_H = 260;
 const RAIN_MS = 1000;
 const FONT_SIZE = 14;
 const CHARS = '01';
@@ -20,23 +20,10 @@ const CHARS = '01';
 function MenuPortal({ onClose }: { onClose: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [done, setDone] = useState(false);
-  // 0 → 1 progress of the rain front reaching the bottom
   const progress = useMotionValue(0);
-  // clipPath: reveal from top — bottom inset goes from 100% → 0%
   const clipBottom = useTransform(progress, [0, 1], ['100%', '0%']);
   const clipPath = useTransform(clipBottom, v => `inset(0 0 ${v} 0 round 12px)`);
   const canvasOpacity = useTransform(progress, [0.7, 1], [1, 0]);
-
-  // Close on outside click
-  useEffect(() => {
-    if (!done) return;
-    const handler = (e: MouseEvent) => {
-      const el = document.getElementById('matrix-menu');
-      if (el && !el.contains(e.target as Node)) onClose();
-    };
-    setTimeout(() => document.addEventListener('mousedown', handler), 0);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [done, onClose]);
 
   // Matrix rain — drives progress in real time
   useEffect(() => {
@@ -55,7 +42,6 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
       const elapsed = ts - start;
       const t = Math.min(elapsed / RAIN_MS, 1);
 
-      // Update progress → drives menu clipPath
       progress.set(t);
 
       if (t >= 1) {
@@ -105,9 +91,9 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
   return createPortal(
     <div
       id="matrix-menu"
-      style={{ position: 'fixed', top: 58, right: 16, width: MENU_W, zIndex: 9999 }}
+      style={{ position: 'absolute', top: 58, right: 16, width: MENU_W, zIndex: 9999 }}
     >
-      {/* Purple menu — revealed in sync with rain via clipPath */}
+      {/* Menu — revealed in sync with rain via clipPath */}
       <motion.div
         style={{
           clipPath,
@@ -217,13 +203,42 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const openRef = useRef(false);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+
+  // Outside-click handler lives here — stable, never re-created
+  useEffect(() => {
+    const handler = (e: MouseEvent | TouchEvent) => {
+      if (!openRef.current) return;
+      const target = 'touches' in e ? e.touches[0]?.target : (e as MouseEvent).target;
+      const menu = document.getElementById('matrix-menu');
+      const btn = document.getElementById('nav-menu-btn');
+      // Ignore clicks on the button itself — the button's onClick handles that
+      if (btn && btn.contains(target as Node)) return;
+      // Close if click was outside the menu
+      if (menu && !menu.contains(target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler as EventListener);
+    document.addEventListener('touchstart', handler as EventListener);
+    return () => {
+      document.removeEventListener('mousedown', handler as EventListener);
+      document.removeEventListener('touchstart', handler as EventListener);
+    };
+  }, []); // empty deps — registers once, reads openRef via ref
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-end px-4 py-3 md:px-6">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-end px-8 py-3 md:px-24 bg-slate-950/60 backdrop-blur-md border-b border-slate-800/50">
         <button
+          id="nav-menu-btn"
           onClick={() => setOpen(o => !o)}
-          className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900/40 px-4 py-2 text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-slate-500 hover:bg-slate-800/60"
+          className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900/40 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-800/60"
         >
           Menu
           <motion.svg

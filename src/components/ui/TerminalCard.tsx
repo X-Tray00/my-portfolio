@@ -89,8 +89,12 @@ export default function TerminalCard({ project }: TerminalCardProps) {
   const [step, setStep] = useState(0);
   const next = () => setStep((s) => s + 1);
 
+  const hasStartedRef = useRef(false);
+
   useEffect(() => {
-    if (inView) setStep(1);
+    if (!inView || hasStartedRef.current) return;
+    hasStartedRef.current = true;
+    setStep(1);
   }, [inView]);
 
   const slug       = toSlug(project.name);
