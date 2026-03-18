@@ -111,49 +111,87 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
       <motion.div
         style={{
           clipPath,
-          background: 'rgba(59, 7, 100, 0.92)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          border: '1px solid rgba(168, 85, 247, 0.45)',
-          borderRadius: 12,
-          padding: '12px 0',
-          boxShadow: '0 0 24px rgba(139, 92, 246, 0.25)',
+          background: 'rgba(0, 10, 2, 0.96)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(0, 255, 65, 0.3)',
+          borderRadius: 8,
+          padding: '8px 0 10px',
+          boxShadow: '0 0 18px rgba(0,255,65,0.08), inset 0 0 30px rgba(0,255,65,0.03)',
           position: 'relative',
+          fontFamily: 'monospace',
         }}
       >
+        {/* Header bar */}
+        <div style={{
+          padding: '4px 14px 8px',
+          borderBottom: '1px solid rgba(0,255,65,0.15)',
+          marginBottom: 4,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}>
+          <span style={{ color: '#00ff41', fontSize: 10, opacity: 0.6 }}>◉</span>
+          <span style={{ color: '#00ff41', fontSize: 10, opacity: 0.5, letterSpacing: '0.1em' }}>NAV_SYSTEM</span>
+        </div>
+
         {links.map((link, i) => (
           <motion.div
             key={link.href}
-            initial={{ opacity: 0 }}
-            animate={done ? { opacity: 1 } : {}}
-            transition={{ delay: i * 0.07, duration: 0.2 }}
+            initial={{ opacity: 0, x: -6 }}
+            animate={done ? { opacity: 1, x: 0 } : {}}
+            transition={{ delay: i * 0.08, duration: 0.18 }}
           >
             <Link
               href={link.href}
               onClick={onClose}
               style={{
-                display: 'block',
-                padding: '10px 20px',
-                color: '#e9d5ff',
-                fontSize: 15,
-                fontWeight: 500,
-                letterSpacing: '0.03em',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '8px 14px',
+                color: '#00cc33',
+                fontSize: 13,
+                fontWeight: 400,
+                letterSpacing: '0.05em',
                 textDecoration: 'none',
-                transition: 'color 0.15s, background 0.15s',
+                transition: 'color 0.1s, background 0.1s',
+                fontFamily: 'monospace',
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.color = '#f0abfc';
-                (e.currentTarget as HTMLElement).style.background = 'rgba(168,85,247,0.15)';
+                const el = e.currentTarget as HTMLElement;
+                el.style.color = '#00ff41';
+                el.style.background = 'rgba(0,255,65,0.07)';
+                const prefix = el.querySelector('.prefix') as HTMLElement;
+                if (prefix) prefix.style.opacity = '1';
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.color = '#e9d5ff';
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
+                const el = e.currentTarget as HTMLElement;
+                el.style.color = '#00cc33';
+                el.style.background = 'transparent';
+                const prefix = el.querySelector('.prefix') as HTMLElement;
+                if (prefix) prefix.style.opacity = '0.3';
               }}
             >
+              <span className="prefix" style={{ opacity: 0.3, transition: 'opacity 0.1s', minWidth: 12 }}>{'>'}</span>
               {link.name}
             </Link>
           </motion.div>
         ))}
+
+        {/* Blinking cursor at bottom */}
+        {done && (
+          <motion.div
+            style={{ padding: '4px 14px 0', display: 'flex', alignItems: 'center', gap: 4 }}
+          >
+            <span style={{ color: '#00ff41', fontSize: 10, opacity: 0.4, fontFamily: 'monospace' }}>_</span>
+            <motion.span
+              animate={{ opacity: [1, 0, 1] }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              style={{ display: 'inline-block', width: 7, height: 13, background: '#00ff41', opacity: 0.5 }}
+            />
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Canvas on top, fades out as rain completes */}
