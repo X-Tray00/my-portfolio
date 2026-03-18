@@ -126,10 +126,10 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
       <AnimatePresence>
         {phase === 'open' && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ clipPath: 'inset(0 0 100% 0 round 12px)', opacity: 1 }}
+            animate={{ clipPath: 'inset(0 0 0% 0 round 12px)', opacity: 1 }}
+            exit={{ clipPath: 'inset(0 0 100% 0 round 12px)', opacity: 1 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             style={{
               background: 'rgba(59, 7, 100, 0.88)',
               backdropFilter: 'blur(12px)',
