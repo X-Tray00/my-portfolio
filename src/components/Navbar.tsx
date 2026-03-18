@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 
 const links = [
   { name: 'Home',        href: '/'            },
@@ -13,21 +13,39 @@ const links = [
 
 const MENU_W = 200;
 const MENU_H = 210;
-const RAIN_MS = 900;
+const RAIN_MS = 1000;
 const FONT_SIZE = 14;
 const CHARS = '01';
 
-function MatrixCanvas({ onDone }: { onDone: () => void }) {
+function MenuPortal({ onClose }: { onClose: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [done, setDone] = useState(false);
+  // 0 → 1 progress of the rain front reaching the bottom
+  const progress = useMotionValue(0);
+  // clipPath: reveal from top — bottom inset goes from 100% → 0%
+  const clipBottom = useTransform(progress, [0, 1], ['100%', '0%']);
+  const clipPath = useTransform(clipBottom, v => `inset(0 0 ${v} 0 round 12px)`);
+  const canvasOpacity = useTransform(progress, [0.7, 1], [1, 0]);
 
+  // Close on outside click
+  useEffect(() => {
+    if (!done) return;
+    const handler = (e: MouseEvent) => {
+      const el = document.getElementById('matrix-menu');
+      if (el && !el.contains(e.target as Node)) onClose();
+    };
+    setTimeout(() => document.addEventListener('mousedown', handler), 0);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [done, onClose]);
+
+  // Matrix rain — drives progress in real time
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
     const cols = Math.floor(MENU_W / FONT_SIZE);
     const rows = Math.floor(MENU_H / FONT_SIZE);
-    // y position (in rows) for each column's rain drop
-    const drops = Array.from({ length: cols }, () => Math.floor(Math.random() * -rows));
+    const drops = Array.from({ length: cols }, () => Math.floor(Math.random() * -rows * 0.4));
     let start: number | null = null;
     let raf = 0;
     let lastFrame = 0;
@@ -35,12 +53,16 @@ function MatrixCanvas({ onDone }: { onDone: () => void }) {
     const tick = (ts: number) => {
       if (!start) start = ts;
       const elapsed = ts - start;
-      if (elapsed >= RAIN_MS) {
-        onDone();
+      const t = Math.min(elapsed / RAIN_MS, 1);
+
+      // Update progress → drives menu clipPath
+      progress.set(t);
+
+      if (t >= 1) {
+        setDone(true);
         return;
       }
 
-      // ~20fps for rain
       if (ts - lastFrame < 50) {
         raf = requestAnimationFrame(tick);
         return;
@@ -49,7 +71,6 @@ function MatrixCanvas({ onDone }: { onDone: () => void }) {
 
       ctx.fillStyle = 'rgba(0,0,0,0.18)';
       ctx.fillRect(0, 0, MENU_W, MENU_H);
-
       ctx.font = `bold ${FONT_SIZE}px monospace`;
 
       for (let i = 0; i < cols; i++) {
@@ -57,23 +78,20 @@ function MatrixCanvas({ onDone }: { onDone: () => void }) {
         const x = i * FONT_SIZE;
         const y = drops[i] * FONT_SIZE;
 
-        // head — bright white-green
+        ctx.globalAlpha = 1;
         ctx.fillStyle = '#ccffcc';
         ctx.fillText(char, x, y);
 
-        // trail — classic matrix green
         ctx.fillStyle = '#00ff41';
-        for (let t = 1; t < 6; t++) {
-          const trailChar = CHARS[Math.floor(Math.random() * CHARS.length)];
-          const alpha = 1 - t / 6;
-          ctx.globalAlpha = alpha;
-          ctx.fillText(trailChar, x, y - t * FONT_SIZE);
+        for (let tr = 1; tr < 6; tr++) {
+          ctx.globalAlpha = 1 - tr / 6;
+          ctx.fillText(CHARS[Math.floor(Math.random() * CHARS.length)], x, y - tr * FONT_SIZE);
         }
         ctx.globalAlpha = 1;
 
         drops[i]++;
         if (drops[i] * FONT_SIZE > MENU_H && Math.random() > 0.7) {
-          drops[i] = Math.floor(Math.random() * -rows * 0.5);
+          drops[i] = Math.floor(Math.random() * -rows * 0.3);
         }
       }
 
@@ -82,100 +100,78 @@ function MatrixCanvas({ onDone }: { onDone: () => void }) {
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [onDone]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      width={MENU_W}
-      height={MENU_H}
-      style={{ display: 'block', borderRadius: 12 }}
-    />
-  );
-}
-
-function MenuPortal({ onClose }: { onClose: () => void }) {
-  const [phase, setPhase] = useState<'raining' | 'open'>('raining');
-
-  // Close on outside click
-  useEffect(() => {
-    if (phase !== 'open') return;
-    const handler = (e: MouseEvent) => {
-      const el = document.getElementById('matrix-menu');
-      if (el && !el.contains(e.target as Node)) onClose();
-    };
-    setTimeout(() => document.addEventListener('mousedown', handler), 0);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [phase, onClose]);
+  }, [progress]);
 
   return createPortal(
     <div
       id="matrix-menu"
-      style={{
-        position: 'fixed',
-        top: 58,
-        right: 16,
-        width: MENU_W,
-        zIndex: 9999,
-      }}
+      style={{ position: 'fixed', top: 58, right: 16, width: MENU_W, zIndex: 9999 }}
     >
-      {phase === 'raining' && (
-        <MatrixCanvas onDone={() => setPhase('open')} />
-      )}
-
-      <AnimatePresence>
-        {phase === 'open' && (
+      {/* Purple menu — revealed in sync with rain via clipPath */}
+      <motion.div
+        style={{
+          clipPath,
+          background: 'rgba(59, 7, 100, 0.92)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(168, 85, 247, 0.45)',
+          borderRadius: 12,
+          padding: '12px 0',
+          boxShadow: '0 0 24px rgba(139, 92, 246, 0.25)',
+          position: 'relative',
+        }}
+      >
+        {links.map((link, i) => (
           <motion.div
-            initial={{ clipPath: 'inset(0 0 100% 0 round 12px)', opacity: 1 }}
-            animate={{ clipPath: 'inset(0 0 0% 0 round 12px)', opacity: 1 }}
-            exit={{ clipPath: 'inset(0 0 100% 0 round 12px)', opacity: 1 }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              background: 'rgba(59, 7, 100, 0.88)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              border: '1px solid rgba(168, 85, 247, 0.45)',
-              borderRadius: 12,
-              padding: '12px 0',
-              boxShadow: '0 0 24px rgba(139, 92, 246, 0.25)',
-            }}
+            key={link.href}
+            initial={{ opacity: 0 }}
+            animate={done ? { opacity: 1 } : {}}
+            transition={{ delay: i * 0.07, duration: 0.2 }}
           >
-            {links.map((link, i) => (
-              <motion.div
-                key={link.href}
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.06, duration: 0.18 }}
-              >
-                <Link
-                  href={link.href}
-                  onClick={onClose}
-                  style={{
-                    display: 'block',
-                    padding: '10px 20px',
-                    color: '#e9d5ff',
-                    fontSize: 15,
-                    fontWeight: 500,
-                    letterSpacing: '0.03em',
-                    textDecoration: 'none',
-                    transition: 'color 0.15s, background 0.15s',
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.color = '#f0abfc';
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(168,85,247,0.15)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.color = '#e9d5ff';
-                    (e.currentTarget as HTMLElement).style.background = 'transparent';
-                  }}
-                >
-                  {link.name}
-                </Link>
-              </motion.div>
-            ))}
+            <Link
+              href={link.href}
+              onClick={onClose}
+              style={{
+                display: 'block',
+                padding: '10px 20px',
+                color: '#e9d5ff',
+                fontSize: 15,
+                fontWeight: 500,
+                letterSpacing: '0.03em',
+                textDecoration: 'none',
+                transition: 'color 0.15s, background 0.15s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.color = '#f0abfc';
+                (e.currentTarget as HTMLElement).style.background = 'rgba(168,85,247,0.15)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.color = '#e9d5ff';
+                (e.currentTarget as HTMLElement).style.background = 'transparent';
+              }}
+            >
+              {link.name}
+            </Link>
           </motion.div>
-        )}
-      </AnimatePresence>
+        ))}
+      </motion.div>
+
+      {/* Canvas on top, fades out as rain completes */}
+      {!done && (
+        <motion.canvas
+          ref={canvasRef}
+          width={MENU_W}
+          height={MENU_H}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            borderRadius: 12,
+            opacity: canvasOpacity,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
     </div>,
     document.body,
   );
