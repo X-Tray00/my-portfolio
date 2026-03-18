@@ -13,7 +13,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Trayan Marinov — Web3 Security & Math',
+  title: 'Trayan Marinov - a security researcher and developer',
   description: 'Web3 security engineer, mathematics & cognitive psychology nerd.',
 };
 
