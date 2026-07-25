@@ -45,20 +45,20 @@ export const projects: ProjectEntry[] = [
     findings: { high: 1, medium: 0, low: 0 },
     rank: '#6',
     description:
-      'Found 1 High severity bug in a cross-chain TITN token contract. A `to != lzEndpoint` exemption in the transfer-lock check created an escape hatch — restricted holders could route tokens through the LayerZero endpoint and bypass the lock entirely. First contest, first finding.',
+      'Found 1 High severity bug in a cross-chain TITN token contract. A `to != lzEndpoint` exemption in the transfer-lock check created an escape hatch — restricted holders could route tokens t[...]',
     // reportUrl: 'https://code4rena.com/reports/...', // TODO: add when published
   },
   {
     type: 'audit',
     platform: 'code4rena',
     protocol: 'Forte: Float128 Solidity Library',
-    logoUrl: 'https://pbs.twimg.com/profile_images/1844150391723757569/kr1nvMyy_400x400.jpg',
+    logoUrl: 'https://www.forte.io/wp-content/uploads/2024/11/Forte_favicon_512.png',
     date: '2025-04',
     tags: ['EVM', 'Solidity', 'Library', 'Math'],
     findings: { high: 2, medium: 0, low: 0 },
     rank: '#21',
     description:
-      'Found 2 High severity bugs in a 128-bit floating-point Solidity library. Key finding: ln(0) did not revert, silently returning an invalid result, violating mathematical invariants and exposing dependent protocols (AMMs, lending rates) to silent precision errors.',
+      'Found 2 High severity bugs in a 128-bit floating-point Solidity library. Key finding: ln(0) did not revert, silently returning an invalid result, violating mathematical invariants and expos[...]',
     // reportUrl: 'https://code4rena.com/reports/...', // TODO: add when published
   },
   {
@@ -71,7 +71,7 @@ export const projects: ProjectEntry[] = [
     findings: { high: 0, medium: 1, low: 0 },
     rank: '#83',
     description:
-      'Found 1 Medium severity bug in the FERC20 token contract. `burnFrom()` reduced user balances without decrementing `_totalSupply`, permanently inflating the reported circulating supply and breaking the core ERC20 accounting invariant.',
+      'Found 1 Medium severity bug in the FERC20 token contract. `burnFrom()` reduced user balances without decrementing `_totalSupply`, permanently inflating the reported circulating supply and b[...]',
     // reportUrl: 'https://code4rena.com/reports/...', // TODO: add when published
   },
   {
@@ -97,7 +97,7 @@ export const projects: ProjectEntry[] = [
   // },
 ];
 
-// ── Utilities ─────────────────────────────────────────────────────────────────
+// ── Utilities ──────────────────────────────────────────────────────────────
 
 /** Converts a project name to a URL slug, e.g. "HallReserve" → "hallreserve" */
 export function toSlug(name: string): string {
