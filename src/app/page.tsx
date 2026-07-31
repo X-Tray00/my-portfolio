@@ -29,10 +29,15 @@ const skills = [
   'Penetration Testing', 'OWASP', 'Slither', 'Linux', 'macOS', 'Active Directory',
 ];
 
+// Value Protected = combined value of the protocols where a finding was confirmed:
+// Virtuals $376.6M + ENS $177.7M + THORWallet/TITN $4.5M = $558.8M (CoinGecko,
+// July 2026). Market cap, not TVL — DefiLlama reports 0 TVL for Virtuals (launchpad)
+// and ENS (naming service). Forte (pre-deployment library) and dreUSD (pre-launch)
+// add nothing measurable, so the figure is a floor.
 const stats = [
-  { label: 'C4 Leaderboard',        value: '#261' },
-  { label: 'Vulnerabilities Found', value: '4'    },
-  { label: 'Best Contest Rank',     value: '#6'   },
+  { label: 'Value Protected',    value: '$550M+' },
+  { label: 'Protocols Reviewed', value: '20+'    },
+  { label: 'Best Contest Rank',  value: '#3'     },
 ];
 
 // ── Divider ───────────────────────────────────────────────────────────────────

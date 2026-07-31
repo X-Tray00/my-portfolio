@@ -7,6 +7,8 @@ interface ProtocolCoinProps {
   name: string;
   size?: number;
   duration?: number;
+  /** Backdrop for logos drawn for dark UIs — without it they sit on the gold face. */
+  logoBg?: string;
 }
 
 export default function ProtocolCoin({
@@ -14,6 +16,7 @@ export default function ProtocolCoin({
   name,
   size     = 52,
   duration = 14,
+  logoBg,
 }: ProtocolCoinProps) {
   const slices    = 48;
   const thickness = Math.max(5, Math.round(size * 0.13));
@@ -64,6 +67,7 @@ export default function ProtocolCoin({
               backgroundImage:     `url(${src})`,
               backgroundSize:      'cover',
               backgroundPosition:  'center',
+              backgroundColor:     logoBg,
               boxShadow:           'inset 0 1px 3px rgba(0,0,0,0.3)',
             }}
           />
