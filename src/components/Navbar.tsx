@@ -2,13 +2,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 
-const links = [
-  { name: 'Home',        href: '/'            },
-  { name: 'My Projects', href: '/my-projects' },
-  { name: 'Services',    href: '/#services'   },
-  { name: 'Contact',     href: '/#contact'    },
+// Nav entries double as Solidity function signatures. The selectors are the real
+// first 4 bytes of keccak256(signature) — verifiable with `cast sig "owner()"`.
+const NAV = [
+  { label: 'Home',        sig: 'home',         href: '/',            selector: '0x9fa92f9d' },
+  { label: 'My Projects', sig: 'getWork',      href: '/my-projects', selector: '0x1c26d5cb' },
+  { label: 'Services',    sig: 'quote',        href: '/#services',   selector: '0x999b93af' },
+  { label: 'Contact',     sig: 'disclose',     href: '/#contact',    selector: '0xeaa41a3b' },
 ];
 
 const MENU_W = 240;
@@ -121,7 +124,7 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
           <span style={{ color: '#00ff41', fontSize: 10, opacity: 0.5, letterSpacing: '0.1em' }}>NAV_SYSTEM</span>
         </div>
 
-        {links.map((link, i) => (
+        {NAV.map((link, i) => (
           <motion.div
             key={link.href}
             initial={{ opacity: 0, x: -6 }}
@@ -160,7 +163,7 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
               }}
             >
               <span className="prefix" style={{ opacity: 0.3, transition: 'opacity 0.1s', minWidth: 12 }}>{'>'}</span>
-              {link.name}
+              {link.label}
             </Link>
           </motion.div>
         ))}
@@ -201,6 +204,106 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ── Selector nav (desktop) ────────────────────────────────────────────────────
+
+const HEX = '0123456789abcdef';
+
+/** Rolls the hex digits and locks them left-to-right, ending on the real value. */
+function Selector({ value, live }: { value: string; live: boolean }) {
+  const body = value.slice(2); // strip '0x' — it never scrambles
+  const [rolled, setRolled] = useState(body);
+
+  useEffect(() => {
+    if (!live) return;
+    let locked = 0;
+
+    const roll = window.setInterval(() => {
+      setRolled(
+        body.slice(0, locked) +
+          Array.from({ length: body.length - locked }, () => HEX[(Math.random() * 16) | 0]).join(''),
+      );
+    }, 28);
+
+    const lock = window.setInterval(() => {
+      locked += 1;
+      if (locked >= body.length) {
+        window.clearInterval(lock);
+        window.clearInterval(roll);
+        setRolled(body);
+      }
+    }, 45);
+
+    return () => {
+      window.clearInterval(roll);
+      window.clearInterval(lock);
+    };
+  }, [live, body]);
+
+  // Only render the rolling value while hovered — idle state is always the truth
+  return <>0x{live ? rolled : body}</>;
+}
+
+function SelectorNav() {
+  const pathname = usePathname();
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  return (
+    <div className="hidden min-h-9 items-center gap-14 md:flex lg:gap-20">
+      {NAV.map((item) => {
+        const isRoute = !item.href.includes('#');
+        const isActive = isRoute && pathname === item.href;
+        // Exactly one item is "hot": the hovered one, or the active route when idle
+        const isHot = hovered === item.href || (hovered === null && isActive);
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-label={item.label}
+            title={item.label}
+            onMouseEnter={() => setHovered(item.href)}
+            onMouseLeave={() => setHovered(null)}
+            className="relative flex flex-col items-center gap-1 pb-1.5 font-mono leading-none no-underline"
+          >
+            <span
+              className="text-[13px] transition-colors duration-150"
+              style={{ color: isHot ? '#00ff41' : '#94a3b8' }}
+            >
+              {item.sig}
+              <span style={{ color: isHot ? 'rgba(0,255,65,0.55)' : '#475569' }}>()</span>
+            </span>
+
+            <span
+              className="text-[9px] tracking-wider transition-colors duration-150"
+              style={{ color: isHot ? '#00cc33' : '#334155' }}
+            >
+              <Selector value={item.selector} live={hovered === item.href} />
+            </span>
+
+            {isHot && (
+              <motion.span
+                layoutId="nav-selector-underline"
+                transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 1,
+                  background: '#00ff41',
+                  boxShadow: '0 0 6px rgba(0,255,65,0.6)',
+                }}
+              />
+            )}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Navbar ────────────────────────────────────────────────────────────────────
+
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const openRef = useRef(false);
@@ -234,11 +337,16 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-end px-8 py-3 md:px-24 bg-slate-950/60 backdrop-blur-md border-b border-slate-800/50">
+      {/* justify-end keeps the mobile button right-aligned; only one child is
+          visible per breakpoint, so md:justify-center centres the selectors */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-end px-8 py-3 md:justify-center md:px-24 bg-slate-950/60 backdrop-blur-md border-b border-slate-800/50">
+        <SelectorNav />
+
+        {/* Mobile — selectors don't fit under ~480px, so the Matrix menu stays */}
         <button
           id="nav-menu-btn"
           onClick={() => setOpen(o => !o)}
-          className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900/40 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-800/60"
+          className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900/40 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-800/60 md:hidden"
         >
           Menu
           <motion.svg
