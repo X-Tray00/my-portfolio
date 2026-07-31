@@ -56,7 +56,7 @@ export const projects: ProjectEntry[] = [
     type: 'audit',
     platform: 'code4rena',
     protocol: 'Forte: Float128 Solidity Library',
-    logoUrl: '/logos/forte.jpg',
+    logoUrl: '/logos/forte.png',
     date: '2025-04',
     tags: ['EVM', 'Solidity', 'Library', 'Math'],
     findings: { high: 2, medium: 0, low: 0 },
