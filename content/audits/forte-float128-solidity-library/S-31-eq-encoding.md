@@ -73,7 +73,7 @@ Suite result: FAILED. 0 passed; 1 failed; 0 skipped
 
 Rewrite `Float128.eq()` to compare decoded values in normalized form.
 
-**Option 1 — Compare decoded values directly:**
+**Option 1: compare decoded values directly**
 
 ```solidity
 function eq(packedFloat a, packedFloat b) internal pure returns (bool) {
@@ -83,7 +83,7 @@ function eq(packedFloat a, packedFloat b) internal pure returns (bool) {
 }
 ```
 
-**Option 2 (safer) — Normalize and compare:**
+**Option 2 (safer): normalize and compare**
 
 ```solidity
 function eq(packedFloat a, packedFloat b) internal pure returns (bool) {

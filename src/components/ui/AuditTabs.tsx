@@ -14,7 +14,7 @@ interface AuditTabsProps {
  *  arrives as ReactNodes, so this component only owns the toggle. */
 export default function AuditTabs({ documentation, findings, findingCount }: AuditTabsProps) {
   const hasFindings = findingCount > 0;
-  // Findings are the payoff — lead with them when they exist
+  // Findings are the payoff, lead with them when they exist
   const [tab, setTab] = useState<Tab>(hasFindings ? 'findings' : 'docs');
 
   const tabs: { id: Tab; label: string; count?: number }[] = [

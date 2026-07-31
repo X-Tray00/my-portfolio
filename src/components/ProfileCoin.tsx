@@ -76,7 +76,7 @@ export default function ProfileCoin({
     const thickness = 0.18;
     const segments = 128;
 
-    // Edge: per facet — wide light stripe + narrow dark stripe + gray
+    // Edge: per facet, wide light stripe + narrow dark stripe + gray
     const SLICES = 80;
     const lightW = 2, darkW = 1, grayW = 1;
     const edgeCanvas = document.createElement('canvas');
@@ -111,7 +111,7 @@ export default function ProfileCoin({
       const photoR = faceSize * 0.44;
       const outerR = faceSize / 2;
 
-      // Silver radial gradient — only on the outer ring (annulus)
+      // Silver radial gradient, only on the outer ring (annulus)
       const gx = mirror ? faceSize * 0.62 : faceSize * 0.38;
       const gy = faceSize * 0.32;
       const gradR = Math.max(
@@ -151,7 +151,7 @@ export default function ProfileCoin({
       const tex = new THREE.CanvasTexture(canvas);
       tex.colorSpace = THREE.SRGBColorSpace;
 
-      // Load photo async — draw into inner circle with natural colors (no overlay)
+      // Load photo async, draw into inner circle with natural colors (no overlay)
       const img = new window.Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
@@ -189,7 +189,7 @@ export default function ProfileCoin({
     // Build coin group
     const group = new THREE.Group();
 
-    // Edge — 64-sided flat polygon cylinder
+    // Edge, 64-sided flat polygon cylinder
     const edgeGeo  = new THREE.CylinderGeometry(radius, radius, thickness, 64, 1, true);
     const edgeMesh = new THREE.Mesh(edgeGeo, silverMat);
     edgeMesh.rotation.x = Math.PI / 2;
@@ -201,7 +201,7 @@ export default function ProfileCoin({
     frontMesh.position.z = thickness / 2 + 0.001;
     group.add(frontMesh);
 
-    // Back face — rotated 180° so it faces backward
+    // Back face, rotated 180° so it faces backward
     const backGeo  = new THREE.CircleGeometry(radius * 0.999, segments);
     const backFaceMesh = new THREE.Mesh(backGeo, backMat);
     backFaceMesh.rotation.y = Math.PI;

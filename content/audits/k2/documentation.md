@@ -1,19 +1,43 @@
-## What K2 is
+## Porting Aave V3 means porting its assumptions
 
-K2 is a **borrowing and lending protocol on Stellar's Soroban** platform. It
-adapts Aave V3's design — supply assets for interest-bearing aTokens, borrow
-against collateral at variable rates, liquidate undercollateralised positions —
-to Stellar's constraints.
+K2 is a lending protocol on Stellar's Soroban, and it adapts Aave V3's design:
+supply for interest-bearing aTokens, borrow against collateral at variable
+rates, liquidate positions that fall underwater.
 
-The interesting part is the port itself. Aave V3's design assumes the EVM:
-its storage layout, its reentrancy model, its integer semantics, its notion of
-an external call. Soroban is a **Rust/WASM** environment with different rules
-for all four. Anywhere the port carried an EVM assumption across without
-re-deriving it is a candidate bug.
+The design is proven. That is exactly what makes the port interesting.
+
+Aave V3 was written against the EVM, and it leans on EVM guarantees that are not
+stated anywhere in the code because on the EVM they are free. Soroban is a
+Rust and WebAssembly environment. Its rules differ on arithmetic, on caller
+identity, on reentrancy, and on whether stored data continues to exist. Every
+place the port carried a line across without re-deriving why it was safe is a
+candidate.
+
+So I did not review this as a fresh lending protocol. I reviewed it as a
+translation, asking one question per contract: **what did the original rely on
+that this environment does not provide?**
+
+## The three that carried real risk
+
+**Arithmetic.** Solidity 0.8 reverts on overflow, and has since 2021, so modern
+EVM code simply assumes it. Rust in release mode wraps unless the code opts into
+checked operations. Interest accumulators and index maths ported line by line
+inherit a completely different failure mode: instead of a revert you get a
+plausible wrong number.
+
+**Caller identity.** Aave's access control assumes `msg.sender` is fixed for the
+duration of a call and cannot be spoofed. Soroban uses `require_auth`, which is
+a different model with different guarantees. The equivalence has to be
+established, not assumed.
+
+**Storage that expires.** Soroban entries have a time to live and must be
+bumped, or they lapse. There is no EVM analogue at all. For a lending protocol
+this is not a housekeeping detail: position data that can quietly disappear is a
+solvency question.
 
 ## Scope
 
-**81 files of Rust** — the only non-Solidity review listed here.
+81 files of Rust, the only non-Solidity review listed here.
 
 ```
 contracts/shared/src/{utils,dex,types,upgradeable,errors,events}.rs
@@ -22,38 +46,14 @@ contracts/a_token/…         interest-bearing receipt token
 contracts/liquidation/…     health factor and auction logic
 ```
 
-## Where I spent the review
-
-I worked the review as a **differential audit against Aave V3** rather than as a
-fresh lending-protocol review. The question on each contract was not "is this
-correct in isolation" but "what did the EVM original rely on that Soroban does
-not provide".
-
-The three that carried the most risk:
-
-1. **Integer semantics.** Solidity 0.8 reverts on overflow. Rust's release
-   profile wraps unless the code opts into checked arithmetic. Any index maths
-   or interest accumulator ported line-by-line inherits a different failure mode.
-
-2. **Reentrancy and authorisation.** Soroban's `require_auth` model is not the
-   `msg.sender` model. Aave's guards assume the caller identity is fixed for
-   the duration of a call; the equivalent guarantee on Soroban has to be
-   established, not assumed.
-
-3. **Storage TTL.** Soroban entries expire and must be bumped. State that
-   silently disappears has no EVM analogue at all, and a lending protocol whose
-   position data can lapse is a solvency problem, not a UX one.
-
 ## Outcome
 
-**One confirmed finding — under disclosure embargo.**
+One confirmed finding, under disclosure embargo.
 
-The issue is validated by the sponsor. **No technical details are published
-here**, and none will be until the fix is deployed: the affected code is live,
-and a description specific enough to be interesting is specific enough to be a
-roadmap. That includes the severity — on a scope this small, severity plus the
-areas named above would narrow the search considerably.
+The issue is validated by the sponsor. No technical details appear here and none
+will until the fix is deployed, because the affected code is live. That includes
+the severity: on a scope this size, severity plus the three areas named above
+would narrow the search considerably for anyone reading with bad intent.
 
-The contest report has not been published yet either, so there is no public link
-for this one. Both this page and the entry will be updated once disclosure is
-permitted.
+The contest report has not been published yet either. This page will be updated
+when disclosure is permitted.

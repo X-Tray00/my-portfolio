@@ -1,44 +1,44 @@
-## What FAssets is
+## A bridge between two chains that cannot see each other
 
-**FAssets** brings non-smart-contract assets — XRP, BTC, DOGE — into DeFi on
-Flare while the holder keeps custody guarantees. An agent posts collateral on
-Flare, a user sends the underlying asset on its native chain, and an
-attestation proving that payment mints the wrapped FAsset.
+FAssets brings XRP, BTC and DOGE into DeFi on Flare while the holder keeps
+custody guarantees. An agent posts collateral on Flare, a user sends the real
+asset on its native chain, and the wrapped FAsset gets minted.
 
-The whole system rests on a bridge between two worlds that cannot see each
-other. Flare contracts cannot read the XRP Ledger directly, so every
-cross-chain fact arrives as an **attestation** from Flare's data layer. That
-makes attestation handling the load-bearing component: if a proof can be
-forged, replayed, or applied to the wrong redemption, the collateral model
-fails behind it.
+The load-bearing part is the middle step. Flare contracts cannot read the XRP
+Ledger. They have no way to check whether that payment happened. So every
+cross-chain fact arrives as an **attestation** from Flare's data layer, and the
+contracts treat it as truth.
+
+That makes attestation handling the trust boundary for the entire system. If a
+proof can be forged, replayed, or applied to a redemption it was not issued for,
+the collateral model behind it does not matter. The bridge is only as sound as
+the thing telling it what happened elsewhere.
+
+## Budgeting 120 files
+
+This was the largest scope I have reviewed, and coverage becomes an allocation
+problem rather than a reading problem. I spent the budget on paths where value
+crosses the chain boundary, because that is where FAssets carries risk no
+single-chain protocol has to think about.
+
+**Attestation replay and binding.** Can a proof of one underlying payment be
+applied to a different redemption, or reused across agents? This is the direct
+attack on the trust boundary.
+
+**Redemption default.** When an agent fails to pay on the underlying chain, the
+user is compensated from collateral instead. Two failure directions: an agent
+escaping a default they owe, or a user triggering one after having been paid.
+Both are real money and both depend on evidence from a chain the contract
+cannot query.
+
+**Liquidation boundaries.** Whether the collateral-ratio maths lets an agent sit
+just outside liquidation while actually undercollateralised.
 
 ## Scope
 
-120 files — the largest scope of any review listed here. The clusters:
-
-- **Agent lifecycle** — collateral, availability, and the agent-exit path.
-- **Minting** — collateral reservation, payment attestation, and the
-  time-limited window between them.
-- **Redemption** — request, payment confirmation, and the default path when an
-  agent fails to pay.
-- **Liquidation** — collateral ratio tracking and the auction mechanics.
-- **Challenges** — illegal-payment, double-payment and free-balance challenges
-  that let anyone prove agent misbehaviour.
-
-## Where I spent the review
-
-With 120 files, coverage is a budgeting problem. I concentrated on the paths
-where **value crosses the chain boundary**, since that is where FAssets carries
-risk no single-chain protocol has:
-
-1. **Attestation replay and binding.** Whether a proof of one underlying payment
-   can be applied to a different redemption, or reused across agents.
-2. **Redemption default.** The path where an agent does not pay and the user is
-   compensated from collateral. Whether an agent can escape the default, and
-   whether a user can trigger it while having been paid.
-3. **Liquidation boundaries.** Whether the collateral-ratio maths lets an agent
-   sit just outside liquidation while actually undercollateralised.
+120 files, clustering into agent lifecycle, minting, redemption, liquidation,
+and the challenge system that lets anyone prove agent misbehaviour.
 
 ## Outcome
 
-**No accepted finding.** Reviewed and submitted; nothing survived judging.
+No accepted finding.

@@ -132,8 +132,8 @@ export default async function AuditDetailPage({
             (entry.rank.startsWith('#') ? (
               <span className="text-xs text-slate-500">· Rank {entry.rank}</span>
             ) : (
-              // "Rank 🥉" reads oddly — the medal speaks for itself
-              <span className="text-xl leading-none" title="Podium finish — 3rd place">
+              // "Rank 🥉" reads oddly, the medal speaks for itself
+              <span className="text-xl leading-none" title="Podium finish, 3rd place">
                 {entry.rank}
               </span>
             ))}

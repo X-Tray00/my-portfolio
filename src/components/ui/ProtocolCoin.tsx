@@ -7,7 +7,7 @@ interface ProtocolCoinProps {
   name: string;
   size?: number;
   duration?: number;
-  /** Backdrop for logos drawn for dark UIs — without it they sit on the gold face. */
+  /** Backdrop for logos drawn for dark UIs, without it they sit on the gold face. */
   logoBg?: string;
 }
 

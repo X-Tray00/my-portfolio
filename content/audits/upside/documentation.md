@@ -1,39 +1,39 @@
-## What Upside is
+## 379 lines and nowhere to hide
 
-Upside lets users **tokenise a URL** and trade the resulting token. `tokenize()`
-mints a token bound to a link, `swap()` trades it, and the owner configures fees
-on both.
+Upside tokenises URLs. `tokenize()` mints a token bound to a link, `swap()`
+trades it, and the owner sets fees on both. Two contracts, 379 lines, the
+smallest scope of anything listed here.
 
-## Scope
+A scope this size removes every excuse a reviewer normally has. There is no
+coverage strategy to get wrong, no contract you ran out of time before reaching,
+no defensible reason to have missed something. Either you found it or you did
+not.
 
-2 contracts, **379 lines** — the smallest scope of anything listed here.
+So I worked it exhaustively rather than by priority, which is a luxury you get
+exactly once per contest of this size.
 
-## Where I spent the review
+## What I went after
 
-A 379-line scope removes every excuse. There is no coverage strategy to get
-wrong and no corner you did not have time to reach; if there is a bug, you either
-found it or you missed it.
+**Tokenisation front-running.** `tokenize()` binds a URL to a token, and the
+binding is first come first served. Anyone watching the mempool can see which
+URL is about to be claimed. Claim ordering is the obvious first question and the
+obvious first thing an attacker tries.
 
-With the surface that small, I worked it exhaustively rather than by priority:
+**Fee arithmetic at the edges.** Can a trade be small enough that its fee rounds
+to zero? Can the fee recipient be set to an address that cannot receive, wedging
+the path for everyone?
 
-1. **Tokenisation front-running.** `tokenize()` binds a URL to a token. Anyone
-   watching the mempool can see which URL is about to be claimed, which makes
-   claim-ordering the obvious first question.
-2. **Fee arithmetic at the boundaries.** Whether a trade small enough can round
-   its fee to zero, and whether the fee recipient can be left as an address that
-   cannot receive.
-3. **Swap invariants.** Whether the curve can be pushed to a state where it
-   prices at zero or reverts permanently.
+**Swap invariants.** Can the curve be driven into a state where it prices at
+zero, or reverts permanently and strands whatever is in it?
 
 ## Outcome
 
-**No accepted finding — and neither did anyone else.**
+No accepted finding, and neither did anybody else.
 
-This contest closed with **zero High and zero Medium severity findings** across
-every warden who entered. 27 reports were submitted and all of them landed as
-Low or non-critical, including the front-running and fee-rounding observations
-above.
+This contest closed with zero Highs and zero Mediums across every warden who
+entered. 27 reports were submitted and all of them landed as Low or
+non-critical, including the front-running and fee-rounding observations above.
 
-I include it because a null result on a contest nobody cracked is a different
-data point from a null result on a contest others solved, and the distinction is
-worth being able to see.
+I list it deliberately. A null result on a contest nobody cracked is a different
+data point from a null result on a contest others solved, and a portfolio that
+cannot tell you which is which is not telling you much.

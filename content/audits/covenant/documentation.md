@@ -1,52 +1,55 @@
-## What Covenant is
+## In a leverage protocol the oracle is the solvency boundary
 
-Covenant builds **markets for the use and funding of leverage against any
-collateral asset, using the collateral itself as liquidity**. Instead of
-requiring a separate lending pool per asset, the collateral being levered
-provides the liquidity, which is what lets the protocol support permissionless
-structured products.
+Covenant builds markets for using and funding leverage against any collateral,
+with the collateral itself providing the liquidity rather than a separate
+lending pool per asset. That is what lets it support permissionless structured
+products.
 
-Two roles matter for the threat model: **curators**, who configure markets and
-choose oracles, and the **LEX** (liquidity exchange) that prices and settles.
-Curators are semi-trusted — they cannot steal directly, but the parameters they
-pick determine whether a market is safe.
+Strip away the mechanism and every important operation resolves against a price:
+health checks, liquidations, minting, unwinding. The oracle is not an input to
+this system, it is the thing that decides whether the system is solvent. So that
+is where the review went.
 
-## Scope
+## Two oracles, one interface, different trust models
 
-26 files:
+The scope wraps both Chainlink and Pyth behind a shared `BaseAdapter`:
 
 ```
-src/Covenant.sol
-src/curators/CovenantCurator.sol
 src/curators/oracles/BaseAdapter.sol
 src/curators/oracles/CrossAdapter.sol
 src/curators/oracles/chainlink/ChainlinkOracle.sol
 src/curators/oracles/pyth/PythOracle.sol
-src/lex/latentswap/LatentSwapLEX.sol
-…
 ```
 
-## Where I spent the review
+Those two oracles are genuinely different animals. Chainlink pushes updates on
+its own schedule. Pyth is pull-based and the caller supplies the update. They
+signal staleness differently and they express confidence differently.
 
-The oracle adapter layer took most of the time, because in a leverage protocol
-the oracle *is* the solvency boundary — every liquidation, every health check
-and every mint resolves against it.
+A common interface over two different trust models is a very specific kind of
+trap: it invites code, and reviewers, to assume one oracle's guarantees apply to
+the other. That assumption is invisible because the interface hides it.
 
-1. **`CrossAdapter` composition.** Chaining two price feeds to synthesise a pair
-   compounds both feeds' staleness windows and both feeds' decimal handling. The
-   question is whether the composed result is more stale, or less precise, than
-   either input is checked for.
+**`CrossAdapter` compounds the problem.** Chaining two feeds to synthesise a
+pair that neither provides directly means you inherit both staleness windows and
+both decimal conventions. The composed result can be older, or less precise,
+than anything the individual checks are looking for.
 
-2. **Chainlink vs Pyth semantics.** The two adapters wrap oracles with genuinely
-   different models — push vs pull, different staleness signals, different
-   confidence semantics. A shared `BaseAdapter` interface over two different
-   trust models is where one oracle's guarantees get silently assumed of the
-   other.
+## The other two areas
 
-3. **`LatentSwapLEX` settlement.** Whether the exchange can be pushed into
-   settling at a price the market did not offer, particularly around the
-   boundaries where leverage is unwound.
+**Curator parameters.** Curators are semi-trusted. They cannot steal directly,
+but they configure markets and choose oracles, so the parameters they are
+allowed to pick determine whether a market is safe at all. The question is which
+of those choices are bounded and which are not.
+
+**`LatentSwapLEX` settlement.** Whether the exchange can be pushed into settling
+at a price the market was not offering, particularly around the boundaries where
+leverage unwinds.
+
+## Scope
+
+26 files, centred on `Covenant.sol`, the curator layer, the oracle adapters and
+the LEX.
 
 ## Outcome
 
-**No accepted finding.** Reviewed and submitted; nothing survived judging.
+No accepted finding.

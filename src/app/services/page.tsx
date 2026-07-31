@@ -17,7 +17,7 @@ export default function ServicesPage() {
         />
         <ScrollReveal delay={0.15}>
           <p className="text-slate-400 text-lg max-w-xl mb-14">
-            Security-first work across the full Web3 stack — from smart contracts
+            Security-first work across the full Web3 stack, from smart contracts
             to infrastructure.
           </p>
         </ScrollReveal>

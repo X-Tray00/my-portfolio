@@ -29,7 +29,7 @@ const severityConfig = {
 
 /** The report is the proof of the work, so it gets a real button + a periodic
  *  shine so the eye lands on it without hovering the card. `shine` is off for
- *  secondary links (GitHub) — same shape, less pull. */
+ *  secondary links (GitHub), same shape, less pull. */
 function ExternalButton({
   href,
   label,
@@ -46,7 +46,7 @@ function ExternalButton({
       rel="noopener noreferrer"
       className="group relative z-20 ml-auto inline-flex items-center gap-1.5 overflow-hidden rounded-lg border border-indigo-500/60 bg-indigo-600/20 px-3 py-1.5 text-xs font-semibold text-indigo-300 shadow-lg shadow-indigo-950/40 transition hover:border-indigo-400 hover:bg-indigo-600/40 hover:text-indigo-100"
     >
-      {/* Shine sweep — the "look here" cue */}
+      {/* Shine sweep, the "look here" cue */}
       {shine && (
         <motion.span
           aria-hidden
@@ -76,11 +76,11 @@ function AuditCard({ entry }: { entry: AuditEntry }) {
 
   return (
     <div className="relative flex flex-col h-full p-5 rounded-2xl border border-slate-700/60 bg-slate-900/70 backdrop-blur-sm hover:border-slate-600 transition-colors">
-      {/* Full-card link as an overlay — lets the external report link coexist
+      {/* Full-card link as an overlay, lets the external report link coexist
           without nesting one <a> inside another (invalid HTML). */}
       <Link
         href={`/audits/${toSlug(entry.protocol)}`}
-        aria-label={`${entry.protocol} — audit details`}
+        aria-label={`${entry.protocol}, audit details`}
         className="absolute inset-0 z-10 rounded-2xl cursor-pointer"
       />
 
@@ -136,7 +136,7 @@ function AuditCard({ entry }: { entry: AuditEntry }) {
         {entry.rank && (
           <span
             className={entry.rank.startsWith('#') ? 'text-xs text-slate-500' : 'text-2xl leading-none'}
-            title={entry.rank.startsWith('#') ? `Rank ${entry.rank}` : 'Podium finish — 3rd place'}
+            title={entry.rank.startsWith('#') ? `Rank ${entry.rank}` : 'Podium finish, 3rd place'}
           >
             {entry.rank}
           </span>
@@ -144,7 +144,7 @@ function AuditCard({ entry }: { entry: AuditEntry }) {
         {entry.reportUrl ? (
           <ExternalButton
             href={entry.reportUrl}
-            // "at Private" would read oddly — private engagements just say "View report"
+            // "at Private" would read oddly, private engagements just say "View report"
             label={entry.platform === 'private' ? 'View report' : `View report at ${platform.label}`}
             shine
           />
@@ -224,7 +224,7 @@ function SoftwareCard({ entry }: { entry: SoftwareProject }) {
 
 const MEDALS: Record<string, number> = { '🥇': 1, '🥈': 2, '🥉': 3 };
 
-/** Placement as a sortable number — lower is better, unplaced sinks to the end. */
+/** Placement as a sortable number, lower is better, unplaced sinks to the end. */
 function placement(e: ProjectEntry): number {
   if (e.type !== 'audit' || !e.rank) return Number.POSITIVE_INFINITY;
   if (MEDALS[e.rank]) return MEDALS[e.rank];
@@ -234,7 +234,7 @@ function placement(e: ProjectEntry): number {
 
 function findingCount(e: ProjectEntry): number {
   if (e.type !== 'audit') return 0;
-  // Embargoed findings still count — they're confirmed, just not publishable
+  // Embargoed findings still count, they're confirmed, just not publishable
   return e.findings.high + e.findings.medium + e.findings.low + (e.embargoedFindings ?? 0);
 }
 
@@ -245,7 +245,7 @@ function byPlacement(a: ProjectEntry, b: ProjectEntry): number {
   const tier = scored(a) - scored(b);
   if (tier !== 0) return tier;
 
-  // A placed entry always outranks an unplaced one — don't fall through to date
+  // A placed entry always outranks an unplaced one, don't fall through to date
   const pa = placement(a);
   const pb = placement(b);
   if (pa !== pb) {

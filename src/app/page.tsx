@@ -11,7 +11,7 @@ import GradientText from '@/components/ui/GradientText';
 import TiltedCard from '@/components/ui/TiltedCard';
 import { services } from '@/data/services';
 
-// ── Config — update with your real info ───────────────────────────────────────
+// ── Config, update with your real info ───────────────────────────────────────
 
 const EMAIL   = 'adv.t.marinov@gmail.com';
 const TWITTER = 'https://x.com/XTray00';
@@ -31,7 +31,7 @@ const skills = [
 
 // Value Protected = combined value of the protocols where a finding was confirmed:
 // Virtuals $376.6M + ENS $177.7M + THORWallet/TITN $4.5M = $558.8M (CoinGecko,
-// July 2026). Market cap, not TVL — DefiLlama reports 0 TVL for Virtuals (launchpad)
+// July 2026). Market cap, not TVL, DefiLlama reports 0 TVL for Virtuals (launchpad)
 // and ENS (naming service). Forte (pre-deployment library) and dreUSD (pre-launch)
 // add nothing measurable, so the figure is a floor.
 const stats = [
@@ -125,7 +125,7 @@ function ContactForm() {
             {status === 'sending' ? 'Sending…' : status === 'sent' ? '✓ Sent!' : 'Send Message'}
           </button>
           {status === 'error' && (
-            <p className="text-red-400 text-sm">Something went wrong — email me directly instead.</p>
+            <p className="text-red-400 text-sm">Something went wrong, email me directly instead.</p>
           )}
         </form>
       </ScrollReveal>

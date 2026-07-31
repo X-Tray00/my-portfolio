@@ -49,7 +49,7 @@ After execution:
 
 ```
 _balances[msg.sender] == 900_000   ✓
-_totalSupply           == 1_000_000 ✗ (unchanged — this is the bug)
+_totalSupply           == 1_000_000 ✗ (unchanged, this is the bug)
 ```
 
 The ERC20 invariant `sum(balances) == totalSupply` is broken. Token trackers and contracts depending on accurate `totalSupply()` (governance, vaults, staking) will behave incorrectly.

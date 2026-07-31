@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 
 // Nav entries double as Solidity function signatures. The selectors are the real
-// first 4 bytes of keccak256(signature) — verifiable with `cast sig "owner()"`.
+// first 4 bytes of keccak256(signature), verifiable with `cast sig "owner()"`.
 const NAV = [
   { label: 'Home',        sig: 'home',         href: '/',            selector: '0x9fa92f9d' },
   { label: 'My Projects', sig: 'getWork',      href: '/my-projects', selector: '0x1c26d5cb' },
@@ -28,7 +28,7 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
   const clipPath = useTransform(clipBottom, v => `inset(0 0 ${v} 0 round 12px)`);
   const canvasOpacity = useTransform(progress, [0.7, 1], [1, 0]);
 
-  // Matrix rain — drives progress in real time
+  // Matrix rain, drives progress in real time
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -96,7 +96,7 @@ function MenuPortal({ onClose }: { onClose: () => void }) {
       id="matrix-menu"
       style={{ position: 'absolute', top: 58, right: 16, width: MENU_W, zIndex: 9999 }}
     >
-      {/* Menu — revealed in sync with rain via clipPath */}
+      {/* Menu, revealed in sync with rain via clipPath */}
       <motion.div
         style={{
           clipPath,
@@ -210,7 +210,7 @@ const HEX = '0123456789abcdef';
 
 /** Rolls the hex digits and locks them left-to-right, ending on the real value. */
 function Selector({ value, live }: { value: string; live: boolean }) {
-  const body = value.slice(2); // strip '0x' — it never scrambles
+  const body = value.slice(2); // strip '0x', it never scrambles
   const [rolled, setRolled] = useState(body);
 
   useEffect(() => {
@@ -239,7 +239,7 @@ function Selector({ value, live }: { value: string; live: boolean }) {
     };
   }, [live, body]);
 
-  // Only render the rolling value while hovered — idle state is always the truth
+  // Only render the rolling value while hovered, idle state is always the truth
   return <>0x{live ? rolled : body}</>;
 }
 
@@ -313,14 +313,14 @@ export default function Navbar() {
     openRef.current = open;
   }, [open]);
 
-  // Outside-click handler lives here — stable, never re-created
+  // Outside-click handler lives here, stable, never re-created
   useEffect(() => {
     const handler = (e: MouseEvent | TouchEvent) => {
       if (!openRef.current) return;
       const target = 'touches' in e ? e.touches[0]?.target : (e as MouseEvent).target;
       const menu = document.getElementById('matrix-menu');
       const btn = document.getElementById('nav-menu-btn');
-      // Ignore clicks on the button itself — the button's onClick handles that
+      // Ignore clicks on the button itself, the button's onClick handles that
       if (btn && btn.contains(target as Node)) return;
       // Close if click was outside the menu
       if (menu && !menu.contains(target as Node)) {
@@ -333,7 +333,7 @@ export default function Navbar() {
       document.removeEventListener('mousedown', handler as EventListener);
       document.removeEventListener('touchstart', handler as EventListener);
     };
-  }, []); // empty deps — registers once, reads openRef via ref
+  }, []); // empty deps, registers once, reads openRef via ref
 
   return (
     <>
@@ -342,7 +342,7 @@ export default function Navbar() {
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-end px-8 py-3 md:justify-center md:px-24 bg-slate-950/60 backdrop-blur-md border-b border-slate-800/50">
         <SelectorNav />
 
-        {/* Mobile — selectors don't fit under ~480px, so the Matrix menu stays */}
+        {/* Mobile, selectors don't fit under ~480px, so the Matrix menu stays */}
         <button
           id="nav-menu-btn"
           onClick={() => setOpen(o => !o)}

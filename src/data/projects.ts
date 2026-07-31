@@ -23,7 +23,7 @@ export type SoftwareProject = {
   githubUrl?: string;
   demoUrl?: string;
   gitpodUrl?: string; // fallback: opens project in Gitpod externally
-  terminalUrl?: string; // HTTPS URL to ttyd instance — embedded in the detail page
+  terminalUrl?: string; // HTTPS URL to ttyd instance, embedded in the detail page
 };
 
 export type BugBountyEntry = {
@@ -49,7 +49,7 @@ export const projects: ProjectEntry[] = [
     findings: { high: 1, medium: 0, low: 0 },
     rank: '🥉',
     description:
-      'Found 1 High severity bug in a cross-chain TITN token contract. A `to != lzEndpoint` exemption in the transfer-lock check created an escape hatch — restricted holders could route tokens through the LayerZero endpoint and bypass the lock entirely. First contest, first finding.',
+      'Found 1 High severity bug in a cross-chain TITN token contract. A `to != lzEndpoint` exemption in the transfer-lock check created an escape hatch. Restricted holders could route tokens through the LayerZero endpoint and bypass the lock entirely. First contest, first finding.',
     reportUrl: 'https://code4rena.com/reports/2025-02-thorwallet',
   },
   {
@@ -87,7 +87,7 @@ export const projects: ProjectEntry[] = [
     tags: ['EVM', 'Solidity', 'Token Distribution', 'Vesting'],
     findings: { high: 0, medium: 0, low: 0 },
     description:
-      'On-chain claim mechanism for the Chainlink BUILD program — a two-file scope against a $200k prize pool. Reviewed double-claim paths, the early-claim discount curve, and factory-to-claim solvency accounting.',
+      'On-chain claim mechanism for the Chainlink BUILD program, a two-file scope against a $200k prize pool. Reviewed double-claim paths, the early-claim discount curve, and factory-to-claim solvency accounting.',
   },
   {
     type: 'audit',
@@ -99,7 +99,7 @@ export const projects: ProjectEntry[] = [
     findings: { high: 0, medium: 0, low: 0 },
     reportUrl: 'https://code4rena.com/reports/2025-07-lido-finance',
     description:
-      "Lido's permissionless staking module — 34 files covering bond accounting, exit penalties and beacon-chain Merkle verification. Scope was CSM (~8.5% of Lido TVL), not the core stETH pool.",
+      "Lido's permissionless staking module. 34 files covering bond accounting, exit penalties and beacon-chain Merkle verification. Scope was CSM (~8.5% of Lido TVL), not the core stETH pool.",
   },
   {
     type: 'audit',
@@ -111,7 +111,7 @@ export const projects: ProjectEntry[] = [
     findings: { high: 0, medium: 0, low: 0 },
     reportUrl: 'https://code4rena.com/reports/2025-08-flare-fasset',
     description:
-      'Brings XRP and other non-smart-contract assets into DeFi via attestation-backed minting. 120 files — the largest scope I have reviewed. Focused on attestation replay and the redemption default path.',
+      'Brings XRP and other non-smart-contract assets into DeFi via attestation-backed minting. 120 files, the largest scope I have reviewed. Focused on attestation replay and the redemption default path.',
   },
   {
     type: 'audit',
@@ -196,7 +196,7 @@ export const projects: ProjectEntry[] = [
     findings: { high: 0, medium: 0, low: 0 },
     reportUrl: 'https://code4rena.com/reports/2025-05-upside',
     description:
-      'URL tokenisation and swaps — 379 lines, the smallest scope I have reviewed. The contest closed with zero Highs and zero Mediums found by anyone who entered.',
+      'URL tokenisation and swaps in 379 lines, the smallest scope I have reviewed. The contest closed with zero Highs and zero Mediums found by anyone who entered.',
   },
   {
     type: 'audit',
@@ -208,7 +208,7 @@ export const projects: ProjectEntry[] = [
     findings: { high: 0, medium: 0, low: 0 },
     reportUrl: 'https://code4rena.com/reports/2025-10-covenant',
     description:
-      'Leverage markets using the collateral itself as liquidity. Concentrated on the oracle adapter layer — cross-adapter staleness composition and the mismatch between Chainlink push and Pyth pull semantics.',
+      'Leverage markets using the collateral itself as liquidity. Concentrated on the oracle adapter layer: cross-adapter staleness composition and the mismatch between Chainlink push and Pyth pull semantics.',
   },
   {
     type: 'audit',
@@ -231,7 +231,7 @@ export const projects: ProjectEntry[] = [
     tags: ['EVM', 'Solidity', 'Intents', 'Cross-chain', 'Delegatecall'],
     findings: { high: 0, medium: 0, low: 0 },
     description:
-      'Multichain intent rails — a separate contest from the Ecosystem Wallet. Nine files including a dedicated DelegatecallGuard. Reviewed delegatecall containment, intent binding and replay across chains.',
+      'Multichain intent rails, a separate contest from the Ecosystem Wallet. Nine files including a dedicated DelegatecallGuard. Reviewed delegatecall containment, intent binding and replay across chains.',
   },
   {
     type: 'audit',
@@ -243,7 +243,7 @@ export const projects: ProjectEntry[] = [
     findings: { high: 0, medium: 0, low: 0 },
     embargoedFindings: 1,
     description:
-      'Aave V3 adapted to Stellar Soroban — 81 files of Rust, the only non-Solidity review here. Worked it as a differential audit: which EVM assumptions did the port carry across that Soroban does not provide. One finding confirmed; details withheld while the code is live.',
+      'Aave V3 adapted to Stellar Soroban. 81 files of Rust, the only non-Solidity review here. Worked it as a differential audit: which EVM assumptions did the port carry across that Soroban does not provide. One finding confirmed; details withheld while the code is live.',
   },
   {
     type: 'software',
@@ -256,7 +256,7 @@ export const projects: ProjectEntry[] = [
       'https://gitpod.io/#https://github.com/X-Tray00/software-for-reserving-halls',
   },
 
-  // Private audits — add when you can disclose them:
+  // Private audits, add when you can disclose them:
   // {
   //   type: 'audit',
   //   platform: 'private',
@@ -264,7 +264,7 @@ export const projects: ProjectEntry[] = [
   //   date: '2025-XX',
   //   tags: ['...'],
   //   findings: { high: 0, medium: 0, low: 0 },
-  //   description: 'Private engagement — details under NDA.',
+  //   description: 'Private engagement, details under NDA.',
   // },
 ];
 

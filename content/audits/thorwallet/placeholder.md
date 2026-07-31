@@ -1,5 +1,5 @@
 ---
-title: "Finding — add title here"
+title: "Finding: add title here"
 severity: high
 submission: S-XXX
 status: valid

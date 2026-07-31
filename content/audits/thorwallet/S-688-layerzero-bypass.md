@@ -27,7 +27,7 @@ function _validateTransfer(address from, address to) internal view {
 }
 ```
 
-The `to != lzEndpoint` condition creates an unintended escape hatch: any restricted address can send tokens to the LayerZero endpoint, which then forwards them elsewhere — effectively circumventing the lock entirely.
+The `to != lzEndpoint` condition creates an unintended escape hatch: any restricted address can send tokens to the LayerZero endpoint, which then forwards them elsewhere, effectively circumventing the lock entirely.
 
 ## Impact
 
@@ -35,11 +35,11 @@ The `to != lzEndpoint` condition creates an unintended escape hatch: any restric
 - **Cross-chain exploitation**: Attackers can move locked TITN across chains, creating an unfair advantage over compliant users.
 - **Broken trust assumptions**: The entire bridged token transfer lock mechanism is undermined, since the security guarantee it provides no longer holds.
 
-## Proof of Concept — Simulated Attack
+## Proof of Concept: simulated attack
 
-1. `isBridgedTokensTransferLocked` is set to `true` — direct transfers revert.
+1. `isBridgedTokensTransferLocked` is set to `true`, so direct transfers revert.
 2. Restricted user attempts a normal transfer → blocked by `BridgedTokensTransferLocked()`.
-3. Instead, the user sends TITN to `lzEndpoint` — the check passes due to the `to != lzEndpoint` exemption.
+3. Instead, the user sends TITN to `lzEndpoint`. The check passes due to the `to != lzEndpoint` exemption.
 4. Via LayerZero bridging mechanisms, tokens are forwarded to a new address where restrictions no longer apply.
 5. Transfer lock successfully bypassed. ✓
 

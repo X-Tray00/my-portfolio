@@ -1,45 +1,47 @@
-## What Ekubo is
+## One contract holds every pool
 
-Ekubo is a **concentrated-liquidity AMM** built on three ideas: a singleton
-contract holding every pool rather than one contract per pair, super-
-concentrated liquidity for capital efficiency, and an **extension** system that
-lets pools attach custom behaviour at defined hook points.
+Ekubo is a concentrated-liquidity AMM with a singleton architecture. Instead of
+deploying a contract per trading pair, every pool lives inside one contract and
+tracks its balances as internal accounting.
 
-The singleton design is the interesting part from a security standpoint. It
-makes swaps cheaper — no token transfers between pool contracts, just internal
-accounting — but it also means every pool shares one storage space and one
-reentrancy surface. An error that would be contained to a single pair in a
-Uniswap-V2-style design is potentially global here.
+The upside is obvious: a swap across three pools moves no tokens between
+contracts, it just updates numbers. That is a large gas saving and it is why the
+sponsor describes the code as relentlessly optimised.
+
+The security consequence is less obvious and more interesting. In a
+Uniswap-V2-style design, a bug in one pair is contained to that pair, because
+the pair is a separate contract holding its own tokens. In a singleton, there is
+no containment boundary. Every pool shares one storage space, one token balance,
+and one reentrancy surface. A mistake that would be a local problem elsewhere is
+potentially a global one here.
+
+## The three questions, in order of blast radius
+
+**Can accounting cross a pool boundary?** The invariant holding the singleton
+together is that each pool's balances are tracked independently against one
+shared pot. Anywhere a pool key is derived, hashed, or truncated is a place two
+different pools might resolve to the same slot. That is the worst case in the
+whole design, so it went first.
+
+**What can an extension reach?** Extensions attach custom behaviour at hook
+points, and hooks fire while the pool is mid-update. Which state is already
+committed when a hook runs? Can an extension re-enter? Can a malicious extension
+on its own pool touch anyone else's? Ekubo ships oracle, TWAMM, MEV-resist and
+limit-order extensions, so this is not hypothetical surface.
+
+**Does the tick maths hold at the extremes?** Concentrated liquidity
+concentrates rounding error along with capital. Boundary ticks, zero-liquidity
+ranges, and the logic that crosses between initialised ticks are where this
+class of protocol has historically broken.
 
 ## Scope
 
-92 files: the core singleton, the math libraries underneath it, and the shipped
-extensions (oracle, TWAMM, MEV-resist and limit-order variants).
-
-## Where I spent the review
-
-Three questions drove the review, in order of how much damage a mistake would
-do:
-
-1. **Can accounting cross the pool boundary?** In a singleton, the invariant
-   holding everything together is that each pool's balances are tracked
-   independently against one shared token pool. Anywhere a pool key is derived,
-   hashed or truncated is a place two pools might collide.
-
-2. **What can an extension do that it should not?** Extensions run at hook
-   points with the pool mid-update. The questions are which state is already
-   committed when the hook fires, whether an extension can re-enter, and whether
-   a malicious extension on its own pool can affect anyone else's.
-
-3. **Does the tick and liquidity math hold at the extremes?** Concentrated
-   liquidity concentrates rounding error too. Boundary ticks, zero-liquidity
-   ranges and the crossing logic between initialised ticks are where these
-   protocols historically break.
+92 files: the singleton core, the maths libraries under it, and the shipped
+extensions.
 
 ## Outcome
 
-**No accepted finding.** Reviewed and submitted; nothing survived judging.
+No accepted finding.
 
-Ekubo's contracts are, by the sponsor's own description, "relentlessly
-optimised" — and heavily optimised code that has already been audited is a hard
-target. That is the honest read on this one.
+Heavily optimised code that has already been audited is a hard target, and this
+is what that looks like from the inside.
